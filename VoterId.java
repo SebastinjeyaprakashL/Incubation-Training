@@ -51,13 +51,15 @@ public class VoterId {
 				throw new InvalidException ("Invalid age or gender ! Please enter correct Age/Gender to apply");
 			}
 		}
-		catch (Exception e){
+		catch (InvalidException e){
 			System.out.println(e);	
 		}
-		
+		catch (InputMismatchException e) {
+			System.out.println("Invalid input ! Please be carefull on data type while entering input ");
+		}
 	}
 	
-	public void getVoterList (){	
+	public void getVoterList () {	
 		voterList.forEach(
                 (key, value)->System.out.println("Applicant Id: " + key + " Applicant Details : " + value));		
 	}
@@ -70,6 +72,7 @@ public class VoterId {
 		applicantDetails.add(ageStr);
 		applicantDetails.add(applicant_gender);
 		voterList.put(number_of_applicant, applicantDetails);
+		System.out.println("Voter Id applied for "+applicant_name+" .His/Her Id is "+ number_of_applicant + ". Save it for future process. \n");
 	}
 	
 	public boolean eligibilityCheck (int age, String gender) {
@@ -92,7 +95,7 @@ public class VoterId {
 			boolean option_flag = true;
 			int option;
 			Scanner sc = new Scanner (System.in);
-			VoterId applicant1 = new VoterId("User1",19,"MALE");
+			VoterId applicant1 = new VoterId("User1",19,"MALE");			
 			VoterId newApplicant = new VoterId();
 			while(option_flag) {
 				System.out.println("Please enter any one of the option below :\n1.Apply Voter Id. \n2.View Voter List. \n3.Exit");
@@ -110,14 +113,12 @@ public class VoterId {
 				}
 			}
 		}
-		catch (Exception e){
-			e.printStackTrace();
+		catch (Exception e) {
+			System.out.println("Invalid input ! Program Exited !");
 		}
 		finally {
 			System.gc();
 			System.out.println("Thank You!");
-		}
-		
+		}	
 	}
-
 }
