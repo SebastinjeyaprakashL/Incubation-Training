@@ -21,7 +21,7 @@ public class VoterId {
 		
 	}
 	
-	public VoterId (String name, int age, String gender) throws InvalidException {
+	public VoterId (String name, int age, String gender) {
 		is_eligible = eligibilityCheck(age, gender);
 		if (is_eligible) {
 			registerVoterId (name, age, gender);
