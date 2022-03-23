@@ -118,7 +118,7 @@ public class VoterId {
 		}
 		finally {
 			System.gc();
-			System.out.println("Thank You!");
+			System.out.println("The End");
 		}	
 	}
 }
