@@ -1,3 +1,4 @@
+//package prakash;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -7,7 +8,6 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
 import java.util.Scanner;
 
 public class Market {
@@ -94,12 +94,19 @@ public class Market {
 		try {
 			ArrayList  employeeDetails = new ArrayList (getEmployeeDetils ());
 			HashMap <Integer,ArrayList> employeeDetailsWithId = new HashMap <Integer,ArrayList>();
-			 employeeDetailsWithId.put (1,employeeDetails);
+			 
 			File file = new File (employeeDirectoryFilePath);
 			if(!file.exists()) {
 	            file.createNewFile();
 	         }
 			BufferedReader readerForEmployeeDirectory = new BufferedReader(new FileReader(file));
+			String last = "", line;
+
+			while ((line = readerForEmployeeDirectory.readLine()) != null) { 
+			last = line;
+			}
+			System.out.println (last);
+			employeeDetailsWithId.put (1,employeeDetails);
 			BufferedWriter writerForEmployeeDeirectory = new BufferedWriter( new FileWriter(file, true) );
 			for (Map.Entry<Integer, ArrayList> entry : employeeDetailsWithId.entrySet()){
 				writerForEmployeeDeirectory.write(entry.getKey() + ":" + entry.getValue());
@@ -145,3 +152,4 @@ public class Market {
 		}
 	}
 }
+
