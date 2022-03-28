@@ -1,4 +1,4 @@
-//package prakash;
+package myPackage;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 public class Market {
 	public static Scanner sc = new Scanner (System.in);
-	public static final String employeeDirectoryFilePath = "D:\\exercise\\EMPLOYEEDIRECTORY.txt";
+	public static final String employeeDirectoryFilePath = "EMPLOYEEDIRECTORY.txt";
 	public static int getIntUserInput () {
 		try {
 			int input = sc.nextInt();
@@ -100,23 +100,27 @@ public class Market {
 	            file.createNewFile();
 	         }
 			BufferedReader readerForEmployeeDirectory = new BufferedReader(new FileReader(file));
-			String last = "", line;
-
-			while ((line = readerForEmployeeDirectory.readLine()) != null) { 
-			last = line;
+			String lastEntry = "", fileReaderByLine;
+			int lastId = 1;
+			while ((fileReaderByLine = readerForEmployeeDirectory.readLine()) != null) { 
+			lastEntry = fileReaderByLine;
 			}
-			System.out.println (last);
-			employeeDetailsWithId.put (1,employeeDetails);
+			System.out.println(lastEntry);
+			if (lastEntry  != "") {
+				String lastLineArray [] = lastEntry.split(":");
+				lastId = Integer.parseInt(lastLineArray[0]);
+				lastId ++ ;
+			}
+			employeeDetailsWithId.put (lastId,employeeDetails);
 			BufferedWriter writerForEmployeeDeirectory = new BufferedWriter( new FileWriter(file, true) );
 			for (Map.Entry<Integer, ArrayList> entry : employeeDetailsWithId.entrySet()){
 				writerForEmployeeDeirectory.write(entry.getKey() + ":" + entry.getValue());
 				writerForEmployeeDeirectory.newLine();
 			}
 			writerForEmployeeDeirectory.flush(); 
-			
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("OOPS something went wrong : " + e);
 		}
 		
 		
@@ -152,4 +156,3 @@ public class Market {
 		}
 	}
 }
-
