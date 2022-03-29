@@ -1,0 +1,23 @@
+
+Bill No : 1	 	 	 	 Date: 2022/03/29 18:40:35
+Biller Name : ADMIN
+PRODUCT NAME 	 UNIT PRICE 	 QUANTITY 	 AMOUNT
+APPLE	 	 	 50.0	 	 	 3.0	 	 	 150.0
+FISH	 	 	 400.0	 	 	 1.0	 	 	 400.0
+PAPAYA	 	 	 60.0	 	 	 2.0	 	 	 120.0
+						TOTAL : 670.0
+						
+Bill No : 2	 	 	 	 Date: 2022/03/29 18:43:23
+Biller Name : TEST1
+PRODUCT NAME 	 UNIT PRICE 	 QUANTITY 	 AMOUNT
+BANANA	 	 	 30.0	 	 	 8.0	 	 240.0
+CARROT	 	 	 40.0	 	 	 8.0	 	 320.0
+	 	 	 	 	  TOTAL : 560.0
+	 	 	 	 	  
+Bill No : 3	 	 	 	 Date: 2022/03/29 19:01:35
+Biller Name : ADMIN
+PRODUCT NAME 	 UNIT PRICE 	 QUANTITY 	 AMOUNT
+CARROT	 	 	 40.0	 	 	 4.0	 	 160.0
+PAPAYA	 	 	 60.0	 	 	 3.0	 	 180.0
+	 	 	 	 	  TOTAL : 340.0
+
