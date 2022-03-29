@@ -1,32 +1,58 @@
-package myPackage;
+package incubation;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Market {
+class Inventory {
 	public static Scanner sc = new Scanner (System.in);
 	public static HashMap <Integer,String> inventoryList = new HashMap <Integer,String>();
 	public static HashMap <Integer,Float> unitPrice = new HashMap <Integer,Float>();
 	public static HashMap <Integer,Float> inventory = new HashMap <Integer, Float>();
 	public static int newProductId = 1;
-	public static final String employeeDirectoryFilePath = "EMPLOYEEDIRECTORY.txt", 
-								productListFilePath = "PRODUCTLIST.txt", 
+	public static final String 	productListFilePath = "PRODUCTLIST.txt", 
 								productPriceListFilePath = "PRICELIST.txt",
 								inventoryListDataFilePath = "INVENTORYDATA.txt",
 								billFilePath = "BILL.txt";
 	
-	public Market () {
+	public Inventory () {
 		updatedProductList ();
 		updatedUnitPriceData ();
 		updatedInventoryData();
+	}
+	
+	public void updatedInventoryData () {
+		try {
+			File file = new File (inventoryListDataFilePath);
+			if(!file.exists()) {
+	            file.createNewFile();
+	         }
+			BufferedReader readerForInventoryData = new BufferedReader(new FileReader(file));
+			String lastEntry = "", fileReaderByLine;
+			int productId ;
+			float productQuantity;
+			while ((fileReaderByLine = readerForInventoryData.readLine()) != null) { 
+			lastEntry = fileReaderByLine;
+				if (lastEntry  != "") {
+					String lastLineArray [] = lastEntry.split(":");
+					productId = Integer.parseInt(lastLineArray[0]);
+					productQuantity = Float.parseFloat(lastLineArray[1]);
+					inventory.put (productId,productQuantity);
+				}
+			}
+		}
+		catch (Exception e) {
+			System.out.println(e);
+		}
 	}
 	
 	public void updatedProductList () {
@@ -40,6 +66,7 @@ public class Market {
 			int lastId = 0;
 			String productName = "";
 			while ((fileReaderByLine = readerForInventory.readLine()) != null) { 
+				//newProductId ++ ;
 			lastEntry = fileReaderByLine;
 				if (lastEntry  != "") {
 					String lastLineArray [] = lastEntry.split(":");
@@ -82,7 +109,7 @@ public class Market {
 		
 	}
 	
-	public void updateInventory () {
+	protected void updateInventory () {
 		try {
 			File file = new File (productListFilePath);
 			BufferedWriter writerForInventory = new BufferedWriter( new FileWriter(file) );
@@ -98,32 +125,7 @@ public class Market {
 		}
 	}
 	
-	public void updatedInventoryData () {
-		try {
-			File file = new File (inventoryListDataFilePath);
-			if(!file.exists()) {
-	            file.createNewFile();
-	         }
-			BufferedReader readerForInventoryData = new BufferedReader(new FileReader(file));
-			String lastEntry = "", fileReaderByLine;
-			int productId ;
-			float productQuantity;
-			while ((fileReaderByLine = readerForInventoryData.readLine()) != null) { 
-			lastEntry = fileReaderByLine;
-				if (lastEntry  != "") {
-					String lastLineArray [] = lastEntry.split(":");
-					productId = Integer.parseInt(lastLineArray[0]);
-					productQuantity = Float.parseFloat(lastLineArray[1]);
-					inventory.put (productId,productQuantity);
-				}
-			}
-		}
-		catch (Exception e) {
-			System.out.println(e);
-		}
-	}
-	
-	public void updateInventoryData () {
+	protected void updateInventoryData () {
 		try {
 			File file = new File (inventoryListDataFilePath);
 			BufferedWriter writerForInventory = new BufferedWriter( new FileWriter(file) );
@@ -139,7 +141,7 @@ public class Market {
 		}
 	}
 	
-	public void updateProductPriceData () {
+	protected void updateProductPriceData () {
 		try {
 			File file = new File (productPriceListFilePath);
 			BufferedWriter writerForInventory = new BufferedWriter( new FileWriter(file) );
@@ -212,153 +214,6 @@ public class Market {
 		}
 	}
 	
-	public ArrayList getUserEmployeeDetials () {
-		try {
-			String employeeName, employeeEmail ;
-			long employeeMobileNumber;
-			ArrayList  employeeDetails = new ArrayList ();
-			System.out.println("Enter the Employee details : \nEMPLOYEE NAME :");
-			employeeName = getStringUserInput ();
-			System.out.println("MOBILE :");
-			employeeMobileNumber = getLongUserInput ();
-			System.out.println ("EMAIL :");
-			employeeEmail = getStringUserInput ();
-			employeeDetails.add(employeeName);
-			employeeDetails.add(employeeMobileNumber);
-			employeeDetails.add(employeeEmail);
-			return employeeDetails;
-			
-			
-		}
-		catch (Exception e) {
-			System.out.println("Invalid Input" + e);
-			return null;
-		}
-		
-		
-	}
-	
-	public HashMap getEmployeeDirectory (){
-		try{
-			File file = new File (employeeDirectoryFilePath);
-			if (!file.exists()){
-				file.createNewFile();
-			}
-			int employeeIdKey;
-			HashMap <Integer,ArrayList> employeeDirectory = new HashMap<Integer,ArrayList>();
-			BufferedReader readerForEmployeeDirectory = new BufferedReader(new FileReader(file));
-			String fileReaderByLine, employeeDetailsValueString;
-			String [] fileLineArray, employeeDetailsValueArray;
-			while ((fileReaderByLine = readerForEmployeeDirectory.readLine()) != null){
-				fileLineArray = fileReaderByLine.split(":");
-				employeeIdKey = Integer.parseInt(fileLineArray[0]);
-				employeeDetailsValueString = fileLineArray[1].replaceAll("\\p{P}", "");
-				employeeDetailsValueArray = employeeDetailsValueString.split(" ");
-				ArrayList employeeDetails = new ArrayList (); 
-				Collections.addAll(employeeDetails, employeeDetailsValueArray);
-				employeeDirectory.put(employeeIdKey, employeeDetails);
-			}
-			return employeeDirectory;
-			
-		}
-		catch (Exception e){
-			System.out.println(e);
-			return null;
-		}
-	}
-	public void updateEmployeeDirectory (HashMap<Integer,ArrayList> updatedEmployeeDirectory)
-	{
-		try {
-			File file = new File (employeeDirectoryFilePath);
-			BufferedWriter writerForEmployeeDeirectory = new BufferedWriter( new FileWriter(file) );
-			for (Map.Entry<Integer, ArrayList> entry : updatedEmployeeDirectory.entrySet()){
-				writerForEmployeeDeirectory.write(entry.getKey() + ":" + entry.getValue());
-				writerForEmployeeDeirectory.newLine();
-			}
-			writerForEmployeeDeirectory.flush();
-			writerForEmployeeDeirectory.close();
-		}
-		catch (Exception e) {
-			System.out.println(e);
-		}
-		
-		
-	}
-	
-	public void addEmployee () {
-		try {
-			ArrayList  employeeDetails = new ArrayList (getUserEmployeeDetials ());
-			HashMap <Integer,ArrayList> employeeDetailsWithId = new HashMap <Integer,ArrayList>();
-			 
-			File file = new File (employeeDirectoryFilePath);
-			if(!file.exists()) {
-	            file.createNewFile();
-	         }
-			BufferedReader readerForEmployeeDirectory = new BufferedReader(new FileReader(file));
-			String lastEntry = "", fileReaderByLine;
-			int lastId = 1;
-			while ((fileReaderByLine = readerForEmployeeDirectory.readLine()) != null) { 
-			lastEntry = fileReaderByLine;
-			}
-			if (lastEntry  != "") {
-				String lastLineArray [] = lastEntry.split(":");
-				lastId = Integer.parseInt(lastLineArray[0]);
-				lastId ++ ;
-			}
-			employeeDetailsWithId.put (lastId,employeeDetails);
-			BufferedWriter writerForEmployeeDeirectory = new BufferedWriter( new FileWriter(file, true) );
-			for (Map.Entry<Integer, ArrayList> entry : employeeDetailsWithId.entrySet()){
-				writerForEmployeeDeirectory.write(entry.getKey() + ":" + entry.getValue());
-				writerForEmployeeDeirectory.newLine();
-			}
-			writerForEmployeeDeirectory.flush(); 
-			System.out.println("Employee added successfully");
-		}
-		catch (Exception e) {
-			System.out.println("OOPS something went wrong : " + e);
-		}
-	}
-	
-	public void removeEmployee () {
-		try {
-			System.out.println("Please enter the employee ID , you need to remove : ");
-			int employeeIdToRemove = getIntUserInput();
-			HashMap <Integer,ArrayList> employeeDetails = new HashMap<Integer,ArrayList>(getEmployeeDirectory());
-			if (employeeDetails.containsKey(employeeIdToRemove)) {
-				System.out.println("Please confirm to remove the following employee from the organization : \n" );
-				ArrayList employeeDetailList = new ArrayList (employeeDetails.get(employeeIdToRemove));
-				System.out.println("NAME : "+employeeDetailList.get(0) 
-								+"\nMOBILE : " + employeeDetailList.get(1) 
-								+ "EMAIL : "+employeeDetailList.get(2));
-				System.out.println ("Please enter 1 to DELETE (OR) 0 to CANCEl");
-				int deleteConfirmation = getIntUserInput();
-				if (deleteConfirmation == 1) {
-					System.out.println("Removed : "+employeeDetails.remove(employeeIdToRemove));
-					updateEmployeeDirectory(employeeDetails);
-					System.out.println("Do you need to remove another employee ?  "
-							+ "1 - YES (OR) 0 - NO ");
-					int removeAnotherEmp = getIntUserInput();
-					if (removeAnotherEmp == 1) {
-						removeEmployee();
-					}
-				}
-			}
-			else {
-				System.out.println("No such employee ID present ! "
-						+ "Do you need to re-enter the employee Id : "
-						+ "press 1 or 0 for exit");
-				int re_enterOption = getIntUserInput();
-				if (re_enterOption == 1)
-				{
-					removeEmployee();
-				}
-			}
-		}
-		catch (Exception e) {
-			System.out.println(e);
-		}
-	}
-	
 	public void addNewProduct () {
 		try {
 			System.out.println ("Enter the product name to add in the inventory list");
@@ -390,8 +245,7 @@ public class Market {
 	public int getProductIdByProductName (String productName) {
 		int productId = 0;
 		try {
-			for (Map.Entry<Integer, String> entry: inventoryList.entrySet())
-	        {
+			for (Map.Entry<Integer, String> entry: inventoryList.entrySet()) {
 	            if (productName.equals(entry.getValue())) {
 	                productId = entry.getKey();
 	            }
@@ -438,8 +292,7 @@ public class Market {
 						+ "\n2 - ADD NEW PRODUCT"
 						+ "\n0 - Exit");
 				int updateOrAddProductOption = getIntUserInput();
-				if (updateOrAddProductOption == 1)
-				{
+				if (updateOrAddProductOption == 1){
 					updateUnitPrice (0);
 				}
 				else if (updateOrAddProductOption == 2) {
@@ -494,7 +347,7 @@ public class Market {
 		}
 	}
 	
-	public void purchase () {
+	public void purchase (String currentUser) {
 		try {
 			boolean keepPurchasingFlag = true ;
 			int keepPurchasingOption = 0 ;
@@ -534,7 +387,7 @@ public class Market {
 					continue;
 				}
 			}
-			generateBill(purchaseOrder);
+			generateBill(purchaseOrder,currentUser);
 				
 		}
 		catch (Exception e) {
@@ -542,11 +395,18 @@ public class Market {
 		}
 	}
 	
-	public void generateBill (HashMap <Integer,Float> purchaseList) {
+	
+	public void generateBill (HashMap <Integer,Float> purchaseList, String currentUser) {
 		try {
+			DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
+			LocalDateTime now = LocalDateTime.now();  
 			File file = new File (billFilePath);
 			BufferedWriter billWriter = new BufferedWriter (new FileWriter(file,true));
+			billWriter.write("Bill No : \t \t \t \t Date: " + dateFormat.format(now)
+							+ "\nBiller Name : "+ currentUser);
 			billWriter.write("PRODUCT NAME \t UNIT PRICE \t QUANTITY \t AMOUNT");
+			System.out.println("Bill No : \t \t \t \t Date: " + dateFormat.format(now)
+			+ "\nBiller Name : "+ currentUser);
 			System.out.println("PRODUCT NAME \t UNIT PRICE \t QUANTITY \t AMOUNT");
 			billWriter.newLine();
 			String productName;
@@ -595,54 +455,318 @@ public class Market {
 		}
 	}
 
+}
+
+class Employee extends Inventory {
+	public static final String employeeDirectoryFilePath = "EMPLOYEEDIRECTORY.txt" , 
+							   userCredentialsFilePath = "CREDENTIALS.txt",
+							   defaultUserPassword = "WELCOME@123";
+	public static HashMap <Integer,ArrayList> employeeData = new HashMap <Integer,ArrayList> ();
+	public static HashMap <String,String> userCredentials = new HashMap <String,String>();
+	public static int newEmployeeId = 1;
 	
-	public static void main (String args []) {
+	public Employee () {
+		updatedEmployeeListWithDetails ();
+		updatedUsernamePassword ();
 		
+	}
+	
+	public void updatedEmployeeListWithDetails () {
+		try{
+			File file = new File (employeeDirectoryFilePath);
+			if (!file.exists()){
+				file.createNewFile();
+			}
+			int employeeIdKey = 0;
+			BufferedReader readerForEmployeeDirectory = new BufferedReader(new FileReader(file));
+			String fileReaderByLine, employeeDetailsValueString;
+			String [] fileLineArray, employeeDetailsValueArray;
+			while ((fileReaderByLine = readerForEmployeeDirectory.readLine()) != null){
+				fileLineArray = fileReaderByLine.split(":");
+				employeeIdKey = Integer.parseInt(fileLineArray[0]);
+				employeeDetailsValueString = fileLineArray[1].replaceAll("\\p{P}", "");
+				employeeDetailsValueArray = employeeDetailsValueString.split(" ");
+				ArrayList employeeDetails = new ArrayList (); 
+				Collections.addAll(employeeDetails, employeeDetailsValueArray);
+				employeeData.put(employeeIdKey, employeeDetails);
+			}
+			newEmployeeId = employeeIdKey + 1 ;
+			
+			
+		}
+		catch (Exception e){
+			System.out.println(e);
+		}
+	}
+	
+	public void updatedUsernamePassword () {
+		try{
+			File file = new File (userCredentialsFilePath);
+			if (!file.exists()){
+				file.createNewFile();
+			}
+			BufferedReader readerForEmployeeDirectory = new BufferedReader(new FileReader(file));
+			String fileReaderByLine, username, password;
+			String [] fileLineArray;
+			while ((fileReaderByLine = readerForEmployeeDirectory.readLine()) != null){
+				fileLineArray = fileReaderByLine.split(":");
+				username = fileLineArray[0];
+				password = fileLineArray[1];
+				userCredentials.put(username, password);
+			}			
+		}
+		catch (Exception e){
+			System.out.println(e);
+		}
+	}
+	
+	public void updateEmployeeDetailsInDb () {
+		try {
+			File file = new File (employeeDirectoryFilePath);
+			BufferedWriter writerForEmployeeDeirectory = new BufferedWriter( new FileWriter(file) );
+			for (Map.Entry<Integer, ArrayList> entry : employeeData.entrySet()){
+				writerForEmployeeDeirectory.write(entry.getKey() + ":" + entry.getValue());
+				writerForEmployeeDeirectory.newLine();
+			}
+			writerForEmployeeDeirectory.flush();
+			writerForEmployeeDeirectory.close();
+			
+		}
+		catch (Exception e) {
+			
+		}
+	}
+	
+	public void updateCredentials () {
+		try {
+			File file = new File (userCredentialsFilePath);
+			BufferedWriter writerForUserCred = new BufferedWriter( new FileWriter(file) );
+			for (Map.Entry<String, String> entry : userCredentials.entrySet()) {
+				writerForUserCred.write(entry.getKey() +":"+ entry.getValue());
+				writerForUserCred.newLine();
+			}
+			writerForUserCred.flush();
+			writerForUserCred.close();
+			
+		}
+		catch (Exception e) {
+			
+		}
+	}
+	
+	public ArrayList getUserEmployeeDetials () {
+		try {
+			String employeeName, employeeEmail ;
+			long employeeMobileNumber;
+			ArrayList  employeeDetails = new ArrayList ();
+			System.out.println("Enter the Employee details : \nEMPLOYEE NAME :");
+			employeeName = getStringUserInput ();
+			System.out.println("MOBILE :");
+			employeeMobileNumber = getLongUserInput ();
+			System.out.println ("EMAIL :");
+			employeeEmail = getStringUserInput ();
+			employeeDetails.add(employeeName);
+			employeeDetails.add(employeeMobileNumber);
+			employeeDetails.add(employeeEmail);
+			return employeeDetails;
+			
+			
+		}
+		catch (Exception e) {
+			System.out.println("Invalid Input" + e);
+			return null;
+		}
+		
+		
+	}
+	
+	public void addEmployee () {
+		try {
+			ArrayList  employeeDetails = new ArrayList (getUserEmployeeDetials ());
+			System.out.println("new emoloyee id :" + newEmployeeId);
+			employeeData.put (newEmployeeId,employeeDetails);
+			updateEmployeeDetailsInDb();
+			String autogeneratedUsername = employeeDetails.get(0) + "_"+newEmployeeId;
+			userCredentials.put(autogeneratedUsername, defaultUserPassword);
+			updateCredentials();
+			System.out.println("Employee added successfully \nThe username is : "+ autogeneratedUsername + " and password :" + defaultUserPassword);
+			newEmployeeId ++;
+		}
+		catch (Exception e) {
+			System.out.println("OOPS something went wrong : " + e);
+		}
+	}
+	
+	public void removeEmployee () {
+		try {
+			System.out.println("Please enter the employee ID , you need to remove : ");
+			int employeeIdToRemove = getIntUserInput();		
+			if (employeeData.containsKey(employeeIdToRemove)) {
+				System.out.println("Please confirm to remove the following employee from the organization : \n" );
+				ArrayList employeeDetailList = new ArrayList (employeeData.get(employeeIdToRemove));
+				System.out.println("NAME : "+employeeDetailList.get(0) 
+								+"\nMOBILE : " + employeeDetailList.get(1) 
+								+ "EMAIL : "+employeeDetailList.get(2));
+				System.out.println ("Please enter 1 to DELETE (OR) 0 to CANCEl");
+				int deleteConfirmation = getIntUserInput();
+				if (deleteConfirmation == 1) {
+					System.out.println("Removed : "+employeeData.remove(employeeIdToRemove));
+					updateEmployeeDetailsInDb();
+					System.out.println("Do you need to remove another employee ?  "
+							+ "1 - YES (OR) 0 - NO ");
+					int removeAnotherEmp = getIntUserInput();
+					if (removeAnotherEmp == 1) {
+						removeEmployee();
+					}
+				}
+			}
+			else {
+				System.out.println("No such employee ID present ! "
+						+ "Do you need to re-enter the employee Id : "
+						+ "press 1 or 0 for exit");
+				int re_enterOption = getIntUserInput();
+				if (re_enterOption == 1){
+					removeEmployee();
+				}
+			}
+		}
+		catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+	public void resetPassword (String userName , String newPassword) {
+		userCredentials.put(userName, newPassword);
+		updateCredentials();
+		System.out.println("Password Updated Successfully! Login Again using new credentials.");
+		}
+	
+}
+
+public class SuperMarketTool {
+
+	public static void main(String[] args) {
+		Inventory inventory =new Inventory ();
+		Employee employee = new Employee ();
 		boolean staySignedInFlag  ;
-		Market market = new Market ();
 		System.out.println("Please enter any one of the option "
-				+ "\n1 - Login "
+				+ "\n1 - Admin Login "
+				+ "\n2 - Employee Login"
 				+ "\n0 - Exit");
-		int loginAs = getIntUserInput();
+		int loginAs = Inventory.getIntUserInput();
 		if (loginAs == 1) {
+			System.out.println("Admin username : ADMIN");
+			System.out.println("Enter the admin password :");
+			String adminPassword = Inventory.getStringUserInput();
+			if(adminPassword.equals("ADMIN")) {
+				staySignedInFlag = true;
+				while (staySignedInFlag ) {
+					System.out.println("Please enter the operation to perform : "
+							+ "\n1 - ADD EMPLOYEE "
+							+ "\n2 - REMOVE EMPLOYEE "
+							+ "\n3 - ADD NEW PRODUCT TO INVENTORY "
+							+ "\n4 - UPDATE EXISTING PRODUCT UNIT PRICE "
+							+ "\n5 - VIEW INVENTORY"
+							+ "\n6 - REFILL INVENTORY PRODUCTS "
+							+ "\n7 - MAKE A SALE"
+							+ "\n8 - EXIT");
+					int adminAction = Inventory.getIntUserInput ();
+					switch (adminAction) {
+						case 0 : continue;
+						case 1: employee.addEmployee ();
+						break;
+						case 2: employee.removeEmployee();
+						break;
+						case 3: employee.addNewProduct();
+						break;
+						case 4: employee.updateUnitPrice(0);
+						break;
+						case 5: employee.viewInventory();
+						break;
+						case 6: employee.refillProducts(0);
+						break;
+						case 7: employee.purchase("ADMIN");
+						break;
+						case 8: staySignedInFlag = false;
+								System.out.println("Logged Out Successfully");
+						break;
+						default : System.out.println("No such option");
+						break;
+					}
+				}
+			}
+			else {
+				System.out.println("Invalid Password !");
+			}
+	
+		}
+		else if (loginAs == 2) {
 			staySignedInFlag = true;
-			while (staySignedInFlag ) {
-				System.out.println("Please enter the operation to perform : "
-						+ "\n1 - ADD EMPLOYEE "
-						+ "\n2 - REMOVE EMPLOYEE "
-						+ "\n3 - ADD NEW PRODUCT TO INVENTORY "
-						+ "\n4 - UPDATE EXISTING PRODUCT UNIT PRICE "
-						+ "\n5 - VIEW INVENTORY"
-						+ "\n6 - REFILL INVENTORY PRODUCTS "
-						+ "\n7 - MAKE A SALE"
-						+ "\n8 - EXIT");
-				int adminAction = getIntUserInput ();
-				switch (adminAction) {
-					case 0 : continue;
-					case 1: market.addEmployee ();
-					break;
-					case 2: market.removeEmployee();
-					break;
-					case 3: market.addNewProduct();
-					break;
-					case 4: market.updateUnitPrice(0);
-					break;
-					case 5: market.viewInventory();
-					break;
-					case 6: market.refillProducts(0);
-					break;
-					case 7: market.purchase();
-					break;
-					case 8: staySignedInFlag = false;
-							System.out.println("Logged Out Successfully");
-					break;
-					default : System.out.println("No such option");
-					break;
+			
+			while (staySignedInFlag == true) {
+				System.out.println("Username :");
+				String username = Inventory.getStringUserInput();
+				if (Employee.userCredentials.containsKey(username)) {
+					System.out.println("Password :");
+					String password = Inventory.getStringUserInput();
+					String existingPassword =Employee.userCredentials.get(username);
+					if(existingPassword.equals(password)) {
+						if (password.equals(employee.defaultUserPassword)) {
+							System.out.println("You need to reset your password !"
+									+ "\n New Password :");
+							String newpassword = Inventory.getStringUserInput();
+							System.out.println("Re-enter Password :");
+							String reEnterPassword = Inventory.getStringUserInput();
+							if(newpassword.equals(reEnterPassword)) {
+								employee.resetPassword(username,newpassword);
+								continue;
+								}
+							}
+						else {
+							String [] employeeName = username.split("_");
+							while(staySignedInFlag == true) {
+								System.out.println("Ënter the option : "
+										+ "\n1 - MAKE A SALE"
+										+ "\n2 - VIEW INVENTORY"
+										+ "\n3 - EXIT");
+								int employeeAction = Inventory.getIntUserInput();
+								switch(employeeAction) {
+								case 1: employee.purchase(employeeName[0]);
+								break;
+								case 2: employee.viewInventory();
+								break;
+								case 3: staySignedInFlag = false;
+								System.out.println("Logged Out Successfully");
+								break;
+								default: System.out.println("No such option");
+								break;
+								}
+							}
+						}
+					}
+					else {
+						System.out.println("Invalid Password! Re-enter username and password !");
+						continue;
+					}
+				}
+				else {
+					System.out.println("Username doesn't exist! hint(USERNAME ==> Your Name followed by a underscore followed by your Id [empname_empId])"
+							+ "Enter 1 to re-enter username 0 - exit");
+					int reEnterUsername = Inventory.getIntUserInput();
+					if (reEnterUsername == 1) {
+						continue;
+					}
+					else {
+						staySignedInFlag = false;
+						break;
+					}
+					
 				}
 			}
 		}
 		else {
 			System.out.println("END");
 		}
+
 	}
+
 }
