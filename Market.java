@@ -26,6 +26,7 @@ public class Market {
 	public Market () {
 		updatedProductList ();
 		updatedUnitPriceData ();
+		updatedInventoryData();
 	}
 	
 	public void updatedProductList () {
@@ -373,8 +374,11 @@ public class Market {
 				inventoryList.put(newProductId,newProductName);
 				System.out.println("Product added successfully");
 				updateUnitPrice(newProductId);
+				refillProducts(newProductId);
 				newProductId ++ ;
 				updateInventory();
+				
+				updatedInventoryData();
 				
 			}
 		}
@@ -403,8 +407,6 @@ public class Market {
 		for(Integer id : inventoryList.keySet() ) {
 			System.out.println ("Product Id :" +id + " => Product Name : " + inventoryList.get(id));
 		}
-		System.out.println("Press ENTER to go main menu");
-		sc.nextLine();
 	}
 	
 	public void updateUnitPrice (int productId) {
@@ -459,12 +461,19 @@ public class Market {
 		}
 	}
 	
-	public void refillProducts () {
+	public void refillProducts (int productId) {
 		try {
-			viewProductList();
-			System.out.println("Enter the product name to refill : ");
-			String productNameToRefillInventory = getStringUserInput();
-			int productId = getProductIdByProductName(productNameToRefillInventory);
+			String productNameToRefillInventory ;
+			if(productId != 0) {
+				productNameToRefillInventory = inventoryList.get(productId);
+			}
+			else {
+				viewProductList();
+				System.out.println("Enter the product name to refill : ");
+				productNameToRefillInventory = getStringUserInput();
+				productId = getProductIdByProductName(productNameToRefillInventory);
+			}
+			
 			float existingquantityOfEnteredProduct = 0 ;
 			if (inventory.containsKey(productId)) {
 				existingquantityOfEnteredProduct = inventory.get(productId) ;
@@ -473,10 +482,10 @@ public class Market {
 			System.out.println("\nEnter the  quantity of "+ productNameToRefillInventory +" to update :");
 			float quantityToUpdate = getFloatUserInput();
 			float updatedQuantity = existingquantityOfEnteredProduct + quantityToUpdate ;
-			unitPrice.put(productId,updatedQuantity);
+			inventory.put(productId,updatedQuantity);
 			updateInventoryData();
 			System.out.println("Quantity Updated !");
-			viewProductList();
+			viewInventory();
 			
 			
 		}
@@ -499,20 +508,26 @@ public class Market {
 				if(productId != 0) {
 					System.out.println("Enter the quantity :");
 					productQuantityToPurchase = getFloatUserInput();
-					existingQuantityOfProduct = inventory.get(productId);
-					updatedQuantityOfProduct = existingQuantityOfProduct - productQuantityToPurchase;
-					if(updatedQuantityOfProduct > 0) {
-						purchaseOrder.put(productId,productQuantityToPurchase);
-						System.out.println("Do you wish to purchase another product : yes (1) or No (0)" );
-						keepPurchasingOption = getIntUserInput();
-						if (keepPurchasingOption == 1) {
-							continue;
-						}
-						else {
-							keepPurchasingFlag = false;
-							break;
+					if(inventory.containsKey(productId)) {
+						existingQuantityOfProduct = inventory.get(productId);
+						updatedQuantityOfProduct = existingQuantityOfProduct - productQuantityToPurchase;
+						if(updatedQuantityOfProduct > 0) {
+							purchaseOrder.put(productId,productQuantityToPurchase);
+							System.out.println("Do you wish to purchase another product : yes (1) or No (0)" );
+							keepPurchasingOption = getIntUserInput();
+							if (keepPurchasingOption == 1) {
+								continue;
+							}
+							else {
+								keepPurchasingFlag = false;
+								break;
+							}
 						}
 					}
+					else {
+						System.out.println("OUT OF STOCK!");
+					}
+					
 				}
 				else {
 					System.out.println("No such product avaialble!");
@@ -543,13 +558,14 @@ public class Market {
 				unitPriceOfProduct = unitPrice.get(id);
 				productPrice = quantity * unitPriceOfProduct;
 				totalPrice += productPrice;
-				billWriter.write(productName + "\t" + unitPriceOfProduct + "\t" + quantity + "\t" + productPrice );
-				System.out.println(productName + "\t" + unitPriceOfProduct + "\t" + quantity + "\t" + productPrice);
+				billWriter.write(productName + "\t \t \t " + unitPriceOfProduct + "\t \t \t " + quantity + "\t \t \t " + productPrice );
+				System.out.println(productName + "\t \t " + unitPriceOfProduct + "\t \t " + quantity + "\t \t " + productPrice);
 				billWriter.newLine();
 			}
 			billWriter.newLine();
-			billWriter.write("\t\t TOTAL : " + totalPrice);
-			System.out.println("\t\t TOTAL : " + totalPrice);
+			billWriter.write("\t\t\t\t\t  TOTAL : " + totalPrice);
+			billWriter.newLine();
+			System.out.println("\t\t\t\t\t TOTAL : " + totalPrice);
 			System.out.println("Please confirm to generate bill : YES (1) or No (0)");
 			generateBillOption = getIntUserInput();
 			if (generateBillOption == 1) {
@@ -559,6 +575,7 @@ public class Market {
 				makePurchaseInInventory(purchaseList);
 			}
 			else {
+				billWriter.close();
 				System.out.println("OOPS previous purchase cancelled!");
 			}
 		}
@@ -574,7 +591,7 @@ public class Market {
 			existingQuantityOfProduct = inventory.get(id);
 			updatedQuantityOfProduct = existingQuantityOfProduct - productQuantityPurchased;
 			inventory.put(id,updatedQuantityOfProduct );
-			
+			updateInventoryData();
 		}
 	}
 
@@ -612,7 +629,7 @@ public class Market {
 					break;
 					case 5: market.viewInventory();
 					break;
-					case 6: market.refillProducts();
+					case 6: market.refillProducts(0);
 					break;
 					case 7: market.purchase();
 					break;
