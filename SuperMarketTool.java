@@ -18,16 +18,49 @@ class Inventory {
 	public static HashMap <Integer,String> inventoryList = new HashMap <Integer,String>();
 	public static HashMap <Integer,Float> unitPrice = new HashMap <Integer,Float>();
 	public static HashMap <Integer,Float> inventory = new HashMap <Integer, Float>();
-	public static int newProductId = 1;
+	public static int newProductId = 1, billSequence = 1;
 	public static final String 	productListFilePath = "PRODUCTLIST.txt", 
 								productPriceListFilePath = "PRICELIST.txt",
 								inventoryListDataFilePath = "INVENTORYDATA.txt",
-								billFilePath = "BILL.txt";
+								billFilePath = "BILL.txt",
+								billSequenceFilePath = "BILLSEQUENCE.txt";
 	
 	public Inventory () {
 		updatedProductList ();
 		updatedUnitPriceData ();
 		updatedInventoryData();
+		getBillSequence ();
+	}
+	
+	public void getBillSequence () {
+		try {
+			File file = new File (billSequenceFilePath);
+			if(!file.exists()) {
+	            file.createNewFile();
+	         }
+			BufferedReader billSequenceReader = new BufferedReader(new FileReader(file));
+			String billSequenceString = billSequenceReader.readLine();
+			if (billSequenceString != null) {
+				billSequence = Integer.parseInt(billSequenceString);
+			}	
+			billSequenceReader.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void updateBillSequence (int Sequence) {
+		try {
+			File file = new File (billSequenceFilePath);
+			BufferedWriter billSequenceWriter = new BufferedWriter(new FileWriter(file));
+			billSequenceWriter.write(""+Sequence);	
+			billSequenceWriter.flush();
+			billSequenceWriter.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void updatedInventoryData () {
@@ -49,6 +82,7 @@ class Inventory {
 					inventory.put (productId,productQuantity);
 				}
 			}
+			readerForInventoryData.close();
 		}
 		catch (Exception e) {
 			System.out.println(e);
@@ -66,8 +100,7 @@ class Inventory {
 			int lastId = 0;
 			String productName = "";
 			while ((fileReaderByLine = readerForInventory.readLine()) != null) { 
-				//newProductId ++ ;
-			lastEntry = fileReaderByLine;
+				lastEntry = fileReaderByLine;
 				if (lastEntry  != "") {
 					String lastLineArray [] = lastEntry.split(":");
 					lastId = Integer.parseInt(lastLineArray[0]);
@@ -75,6 +108,7 @@ class Inventory {
 					inventoryList.put (lastId,productName);
 				}	
 			}
+			readerForInventory.close();
 			newProductId = lastId + 1 ;
 		}
 		catch (Exception e) {
@@ -102,6 +136,7 @@ class Inventory {
 					unitPrice.put (productId,productPrice);
 				}
 			}
+			readerForUnitPrice.close();
 		}
 		catch (Exception e) {
 			System.out.println(e);
@@ -310,7 +345,7 @@ class Inventory {
 			}
 		}
 		else {
-			System.out.println("Inventory is empty! Please add update inventory.");
+			System.out.println("Inventory is empty! Please update inventory.");
 		}
 	}
 	
@@ -330,7 +365,7 @@ class Inventory {
 			float existingquantityOfEnteredProduct = 0 ;
 			if (inventory.containsKey(productId)) {
 				existingquantityOfEnteredProduct = inventory.get(productId) ;
-				System.out.println("Old price of "+ productNameToRefillInventory + " : "+ existingquantityOfEnteredProduct); 
+				System.out.println("Existing amount of "+ productNameToRefillInventory + " : "+ existingquantityOfEnteredProduct); 
 			}
 			System.out.println("\nEnter the  quantity of "+ productNameToRefillInventory +" to update :");
 			float quantityToUpdate = getFloatUserInput();
@@ -376,9 +411,13 @@ class Inventory {
 								break;
 							}
 						}
+						else {
+							System.out.println("OUT OF STOCK");
+						}
 					}
 					else {
-						System.out.println("OUT OF STOCK!");
+						System.out.println("Product not updated in Inventory!");
+						continue;
 					}
 					
 				}
@@ -402,10 +441,12 @@ class Inventory {
 			LocalDateTime now = LocalDateTime.now();  
 			File file = new File (billFilePath);
 			BufferedWriter billWriter = new BufferedWriter (new FileWriter(file,true));
-			billWriter.write("Bill No : \t \t \t \t Date: " + dateFormat.format(now)
+			billWriter.newLine();
+			billWriter.write("Bill No : "+ billSequence +"\t \t \t \t Date: " + dateFormat.format(now)
 							+ "\nBiller Name : "+ currentUser);
+			billWriter.newLine();
 			billWriter.write("PRODUCT NAME \t UNIT PRICE \t QUANTITY \t AMOUNT");
-			System.out.println("Bill No : \t \t \t \t Date: " + dateFormat.format(now)
+			System.out.println("Bill No : "+ billSequence + " \t \t \t \t Date: " + dateFormat.format(now)
 			+ "\nBiller Name : "+ currentUser);
 			System.out.println("PRODUCT NAME \t UNIT PRICE \t QUANTITY \t AMOUNT");
 			billWriter.newLine();
@@ -418,19 +459,21 @@ class Inventory {
 				unitPriceOfProduct = unitPrice.get(id);
 				productPrice = quantity * unitPriceOfProduct;
 				totalPrice += productPrice;
-				billWriter.write(productName + "\t \t \t " + unitPriceOfProduct + "\t \t \t " + quantity + "\t \t \t " + productPrice );
+				billWriter.write(productName + "\t \t \t " + unitPriceOfProduct + "\t \t \t " + quantity + "\t \t " + productPrice );
 				System.out.println(productName + "\t \t " + unitPriceOfProduct + "\t \t " + quantity + "\t \t " + productPrice);
 				billWriter.newLine();
 			}
+			billWriter.write("\t \t \t \t \t  TOTAL : " + totalPrice);
 			billWriter.newLine();
-			billWriter.write("\t\t\t\t\t  TOTAL : " + totalPrice);
 			billWriter.newLine();
 			System.out.println("\t\t\t\t\t TOTAL : " + totalPrice);
 			System.out.println("Please confirm to generate bill : YES (1) or No (0)");
 			generateBillOption = getIntUserInput();
 			if (generateBillOption == 1) {
+				billSequence ++ ;
 				billWriter.flush();
 				billWriter.close();
+				updateBillSequence ( billSequence);
 				System.out.println("Purchase Completed! \nThank You ! Welcome !");
 				makePurchaseInInventory(purchaseList);
 			}
@@ -491,7 +534,7 @@ class Employee extends Inventory {
 				employeeData.put(employeeIdKey, employeeDetails);
 			}
 			newEmployeeId = employeeIdKey + 1 ;
-			
+			readerForEmployeeDirectory.close();
 			
 		}
 		catch (Exception e){
@@ -513,7 +556,8 @@ class Employee extends Inventory {
 				username = fileLineArray[0];
 				password = fileLineArray[1];
 				userCredentials.put(username, password);
-			}			
+			}
+			readerForEmployeeDirectory.close();
 		}
 		catch (Exception e){
 			System.out.println(e);
@@ -521,7 +565,7 @@ class Employee extends Inventory {
 	}
 	
 	public void updateEmployeeDetailsInDb () {
-		try {
+		try {			
 			File file = new File (employeeDirectoryFilePath);
 			BufferedWriter writerForEmployeeDeirectory = new BufferedWriter( new FileWriter(file) );
 			for (Map.Entry<Integer, ArrayList> entry : employeeData.entrySet()){
@@ -533,7 +577,7 @@ class Employee extends Inventory {
 			
 		}
 		catch (Exception e) {
-			
+			System.out.println(e);
 		}
 	}
 	
@@ -749,8 +793,10 @@ public class SuperMarketTool {
 					}
 				}
 				else {
-					System.out.println("Username doesn't exist! hint(USERNAME ==> Your Name followed by a underscore followed by your Id [empname_empId])"
-							+ "Enter 1 to re-enter username 0 - exit");
+					System.out.println("Username doesn't exist! '"
+							+ "\nhint(USERNAME ==> Your Name followed by a underscore followed by your Id [empname_empId])"
+							+ "\nEnter 1 to re-enter username "
+							+ "\n0 - exit");
 					int reEnterUsername = Inventory.getIntUserInput();
 					if (reEnterUsername == 1) {
 						continue;
